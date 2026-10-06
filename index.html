@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>भारत सरकार योजनाएँ - AI सहायक</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, "Noto Sans Devanagari", sans-serif;
+    }
+
+    body {
+      background: #f3f6f9;
+      color: #17202a;
+    }
+
+    header {
+      background: linear-gradient(135deg, #ff7a00, #138808);
+      color: white;
+      padding: 28px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .search-box {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      border: none;
+      padding: 13px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .search-btn {
+      background: #138808;
+      color: white;
+      width: 100%;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .category {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .category:hover {
+      background: #fff4e8;
+    }
+
+    .chat {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .chat h2 {
+      margin-bottom: 15px;
+    }
+
+    #messages {
+      min-height: 250px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    .message {
+      padding: 13px;
+      margin: 10px 0;
+      border-radius: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background: #e8f5e9;
+      text-align: right;
+    }
+
+    .ai {
+      background: #f1f1f1;
+    }
+
+    .loading {
+      color: #777;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffe69c;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🇮🇳 सरकारी योजना AI सहायक</h1>
+  <p>भारत सरकार की योजनाओं के बारे में हिंदी में जानकारी प्राप्त करें</p>
+</header>
+
+<div class="container">
+
+  <div class="search-box">
+
+    <h2>योजना खोजें</h2>
+
+    <br>
+
+    <input
+      id="question"
+      type="text"
+      placeholder="जैसे: किसानों के लिए कौन-कौन सी सरकारी योजनाएँ हैं?"
+      onkeydown="handleEnter(event)"
+    >
+
+    <button class="search-btn" onclick="askAI()">
+      🔍 योजना खोजें
+    </button>
+
+    <div class="categories">
+      <div class="category" onclick="askCategory('किसानों के लिए सरकारी योजनाएँ')">
+        🌾 किसान
+      </div>
+
+      <div class="category" onclick="askCategory('छात्रों के लिए सरकारी योजनाएँ और छात्रवृत्ति')">
+        🎓 शिक्षा
+      </div>
+
+      <div class="category" onclick="askCategory('महिलाओं के लिए सरकारी योजनाएँ')">
+        👩 महिला
+      </div>
+
+      <div class="category" onclick="askCategory('गरीब परिवारों के लिए सरकारी योजनाएँ')">
+        🏠 गरीब परिवार
+      </div>
+
+      <div class="category" onclick="askCategory('स्वास्थ्य से संबंधित सरकारी योजनाएँ')">
+        🏥 स्वास्थ्य
+      </div>
+
+      <div class="category" onclick="askCategory('रोजगार और कौशल विकास की सरकारी योजनाएँ')">
+        💼 रोजगार
+      </div>
+    </div>
+
+    <div class="warning">
+      ⚠️ यह AI सहायक सामान्य जानकारी देता है। योजना की पात्रता, आवेदन प्रक्रिया और वर्तमान नियमों को आधिकारिक सरकारी स्रोत से अवश्य जाँचें।
+    </div>
+
+  </div>
+
+
+  <div class="chat">
+
+    <h2>🤖 AI सहायक</h2>
+
+    <div id="messages">
+
+      <div class="message ai">
+        नमस्ते! 👋
+
+        मैं आपको भारत सरकार की योजनाओं के बारे में हिंदी में जानकारी देने में मदद कर सकता हूँ।
+
+        आप पूछ सकते हैं:
+        • किसानों के लिए योजनाएँ
+        • छात्रों के लिए योजनाएँ
+        • महिलाओं के लिए योजनाएँ
+        • स्वास्थ्य योजनाएँ
+        • रोजगार योजनाएँ
+        • आवास योजनाएँ
+
+        अपना सवाल ऊपर लिखें।
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  © 2026 सरकारी योजना AI सहायक | जानकारी के लिए आधिकारिक सरकारी स्रोत देखें
+</footer>
+
+
+<script>
+
+  // ============================================
+  // GROQ API CONFIGURATION
+  // ============================================
+
+  const GROQ_API_KEY = "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";
+
+  // Current Groq production model
+  const MODEL = "openai/gpt-oss-120b";
+
+  const GROQ_URL =
+    "https://api.groq.com/openai/v1/chat/completions";
+
+
+  // ============================================
+  // ENTER KEY
+  // ============================================
+
+  function handleEnter(event) {
+
+    if (event.key === "Enter") {
+      askAI();
+    }
+
+  }
+
+
+  // ============================================
+  // CATEGORY BUTTON
+  // ============================================
+
+  function askCategory(text) {
+
+    document.getElementById("question").value = text;
+
+    askAI();
+
+  }
+
+
+  // ============================================
+  // ADD MESSAGE
+  // ============================================
+
+  function addMessage(text, type) {
+
+    const messages =
+      document.getElementById("messages");
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "message " + type;
+
+    div.textContent = text;
+
+    messages.appendChild(div);
+
+    messages.scrollTop =
+      messages.scrollHeight;
+
+    return div;
+  }
+
+
+  // ============================================
+  // AI REQUEST
+  // ============================================
+
+  async function askAI() {
+
+    const input =
+      document.getElementById("question");
+
+    const question =
+      input.value.trim();
+
+    if (!question) {
+
+      alert("कृपया अपना सवाल लिखें।");
+
+      return;
+
+    }
+
+
+    if (GROQ_API_KEY === "YOUR_GROQ_API_KEY") {
+
+      alert(
+        "कृपया HTML code में YOUR_GROQ_API_KEY की जगह अपनी Groq API key डालें।"
+      );
+
+      return;
+
+    }
+
+
+    addMessage(question, "user");
+
+    input.value = "";
+
+
+    const loading =
+      addMessage("⏳ जानकारी खोजी जा रही है...", "ai loading");
+
+
+    try {
+
+      const response =
+        await fetch(GROQ_URL, {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type": "application/json",
+
+            "Authorization":
+              "Bearer " + GROQ_API_KEY
+
+          },
+
+          body: JSON.stringify({
+
+            model: MODEL,
+
+            messages: [
+
+              {
+                role: "system",
+
+                content: `
+आप भारत सरकार की योजनाओं के हिंदी AI सहायक हैं।
+
+हमेशा सरल और स्पष्ट हिंदी में उत्तर दें।
+
+यदि उपयोगकर्ता किसी सरकारी योजना के बारे में पूछता है तो जहाँ संभव हो:
+
+1. योजना का नाम
+2. योजना का उद्देश्य
+3. कौन आवेदन कर सकता है
+4. मुख्य लाभ
+5. आवश्यक दस्तावेज
+6. आवेदन करने का सामान्य तरीका
+7. आधिकारिक वेबसाइट/स्रोत की जानकारी
+
+बताएँ।
+
+महत्वपूर्ण:
+- सरकारी योजनाओं की जानकारी बदल सकती है।
+- पात्रता या राशि के बारे में निश्चित दावा तभी करें जब जानकारी विश्वसनीय हो।
+- यदि जानकारी निश्चित नहीं है तो साफ बताएं कि उपयोगकर्ता को आधिकारिक सरकारी पोर्टल पर वर्तमान जानकारी जाँचनी चाहिए।
+- कोई सरकारी योजना मौजूद न होने पर उसे बनाकर न बताएं।
+- उत्तर छोटे headings और bullet points में दें।
+- केवल हिंदी में उत्तर दें।
+                `
+              },
+
+              {
+                role: "user",
+
+                content: question
+
+              }
+
+            ],
+
+            temperature: 0.2,
+
+            max_tokens: 1500
+
+          })
+
+        });
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error?.message ||
+          "API request failed"
+        );
+
+      }
+
+
+      const answer =
+        data.choices?.[0]?.message?.content;
+
+
+      loading.remove();
+
+
+      if (answer) {
+
+        addMessage(answer, "ai");
+
+      } else {
+
+        addMessage(
+          "माफ कीजिए, अभी उत्तर प्राप्त नहीं हुआ।",
+          "ai"
+        );
+
+      }
+
+    }
+
+    catch (error) {
+
+      loading.remove();
+
+      addMessage(
+        "❌ समस्या आ गई:\n" + error.message,
+        "ai"
+      );
+
+      console.error(error);
+
+    }
+
+  }
+
+</script>
+
+</body>
+</html>
